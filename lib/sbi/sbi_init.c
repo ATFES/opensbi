@@ -263,6 +263,25 @@ static void wake_coldboot_harts(struct sbi_scratch *scratch, u32 hartid)
 static unsigned long entry_count_offset;
 static unsigned long init_count_offset;
 
+static void sbi_act_prepare_mmode_handoff(struct sbi_scratch *scratch)
+{
+	/*
+	 * This local board-test branch always hands the next stage to the
+	 * ACT payload in M-mode so the self-checking firmware can execute the
+	 * privileged test flow directly on K1.
+	 */
+	scratch->next_mode = PRV_M;
+}
+
+static void sbi_boot_print_act_handoff(struct sbi_scratch *scratch)
+{
+	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		return;
+
+	sbi_printf("ACT_MMODE_BOOT: forcing next mode to M-mode"
+		   " (next_addr=0x%lx)\n", scratch->next_addr);
+}
+
 static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 {
 	int rc;
@@ -393,6 +412,7 @@ static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
 	sbi_boot_print_domains(scratch);
 
 	sbi_boot_print_hart(scratch, hartid);
+	sbi_boot_print_act_handoff(scratch);
 
 #ifndef CONFIG_ARM_PSCI_SUPPORT
 	wake_coldboot_harts(scratch, hartid);
@@ -525,6 +545,8 @@ void __noreturn sbi_init(struct sbi_scratch *scratch)
 	if ((SBI_HARTMASK_MAX_BITS <= hartid) ||
 	    sbi_platform_hart_invalid(plat, hartid))
 		sbi_hart_hang();
+
+	sbi_act_prepare_mmode_handoff(scratch);
 
 	switch (scratch->next_mode) {
 	case PRV_M:

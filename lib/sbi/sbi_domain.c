@@ -346,10 +346,12 @@ static int sanitize_domain(const struct sbi_platform *plat,
 	/*
 	 * Check next mode
 	 *
-	 * We only allow next mode to be S-mode or U-mode, so that we can
-	 * protect M-mode context and enforce checks on memory accesses.
+	 * This local K1 ACT branch also allows an M-mode next stage so the
+	 * board-test payload can execute privileged ACT firmware directly after
+	 * OpenSBI handoff.
 	 */
-	if (dom->next_mode != PRV_S &&
+	if (dom->next_mode != PRV_M &&
+	    dom->next_mode != PRV_S &&
 	    dom->next_mode != PRV_U) {
 		sbi_printf("%s: %s invalid next booting stage mode 0x%lx\n",
 			   __func__, dom->name, dom->next_mode);
