@@ -343,16 +343,15 @@ static int sanitize_domain(const struct sbi_platform *plat,
 	 * be started at boot-time by sbi_domain_finalize().
 	 */
 
-	/*
-	 * Check next mode
-	 *
-	 * This local K1 ACT branch also allows an M-mode next stage so the
-	 * board-test payload can execute privileged ACT firmware directly after
-	 * OpenSBI handoff.
-	 */
+	/* Check next mode */
+#ifdef OPENSBI_UBOOT_MMODE
 	if (dom->next_mode != PRV_M &&
 	    dom->next_mode != PRV_S &&
 	    dom->next_mode != PRV_U) {
+#else
+	if (dom->next_mode != PRV_S &&
+	    dom->next_mode != PRV_U) {
+#endif
 		sbi_printf("%s: %s invalid next booting stage mode 0x%lx\n",
 			   __func__, dom->name, dom->next_mode);
 		return SBI_EINVAL;
