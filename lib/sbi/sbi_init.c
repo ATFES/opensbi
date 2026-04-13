@@ -272,6 +272,14 @@ static void sbi_prepare_uboot_handoff(struct sbi_scratch *scratch)
 
 static void sbi_boot_print_uboot_handoff(struct sbi_scratch *scratch)
 {
+#ifdef OPENSBI_UBOOT_MMODE
+	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
+		return;
+
+	sbi_printf("ACT_MMODE_BOOT: forcing next mode to M-mode"
+		   " (next_addr=0x%lx)\n", scratch->next_addr);
+	return;
+#else
 	const char *mode_name = "unknown";
 
 	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
@@ -293,6 +301,7 @@ static void sbi_boot_print_uboot_handoff(struct sbi_scratch *scratch)
 
 	sbi_printf("OPENSBI_NEXT_MODE=%s_FOR_UBOOT (next_addr=0x%lx)\n",
 		   mode_name, scratch->next_addr);
+#endif
 }
 
 static void __noreturn init_coldboot(struct sbi_scratch *scratch, u32 hartid)
