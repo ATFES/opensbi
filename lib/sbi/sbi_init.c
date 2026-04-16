@@ -276,7 +276,7 @@ static void sbi_boot_print_uboot_handoff(struct sbi_scratch *scratch)
 	if (scratch->options & SBI_SCRATCH_NO_BOOT_PRINTS)
 		return;
 
-	sbi_printf("ACT_MMODE_BOOT: forcing next mode to M-mode"
+	sbi_printf("OPENSBI_NEXT_MODE=M_FOR_UBOOT"
 		   " (next_addr=0x%lx)\n", scratch->next_addr);
 	return;
 #else
